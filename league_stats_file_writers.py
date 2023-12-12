@@ -7,10 +7,15 @@ import pandas as pd
 
 
 class ChampPlacementWriter(FileReader):
+    champion_names_file_path = "champion_names.csv"
+    champion_names_with_placements_file_path = "champion_names_with_placements.csv"
+
     def __init__(self, file_path: str, recorded_games_file_path: str = "recorded_games.csv"):
         super(ChampPlacementWriter, self).__init__(file_path)
-        self._recorded_games_reader = CSV_FileReader(recorded_games_file_path)
         self._recorded_games_file_path = recorded_games_file_path
+        self._recorded_games_reader = CSV_FileReader(recorded_games_file_path)
+        self.__champ_names_file_reader = CSV_FileReader(self.champion_names_file_path)
+        self.__champ_names_with_placements_file_reader = CSV_FileReader(self.champion_names_with_placements_file_path)
 
     def save(self, match: Match) -> None:
         recorded_games = self._recorded_games_reader.load()
@@ -44,19 +49,19 @@ class ChampPlacementWriter(FileReader):
 
     @property
     def champion_names(self) -> pd.DataFrame:
-        champion_names_reader = CSV_FileReader("champion_names.csv")
+        champion_names_reader = self.__champ_names_file_reader
         champion_names = champion_names_reader.load()
         champion_names.columns = champion_names.columns.str.lower()
         return champion_names
 
     @property
     def champion_names_with_placements(self) -> pd.DataFrame:
-        champion_names_with_placements_reader = CSV_FileReader("champion_names_with_placements.csv")
+        champion_names_with_placements_reader = self.__champ_names_with_placements_file_reader
         champion_names_with_placements = champion_names_with_placements_reader.load()
         return champion_names_with_placements
 
     def make_empty(self) -> None:
-        user_confirmation = input("Are you sure? Y/N ")
+        user_confirmation = input("Are you sure? Y/N: ")
         if user_confirmation.lower() != 'y':
             print("Cancelling making empty.")
             return None
@@ -105,7 +110,7 @@ class ChampPlacementWriter(FileReader):
         return None
 
     def add_new_champion_name(self, champion: Champion) -> None:
-        champion_names_reader = CSV_FileReader("champion_names.csv")
+        champion_names_reader = self.__champ_names_file_reader
         champion_names = champion_names_reader.load()
         champion_names.columns = champion_names.columns.str.lower()
         champion_names_list = champion_names.columns.tolist()
@@ -121,7 +126,7 @@ class ChampPlacementWriter(FileReader):
         return None
 
     def add_new_champion_name_with_placements(self, champion: Champion) -> None:
-        champion_names_with_placements_reader = CSV_FileReader("champion_names_with_placements.csv")
+        champion_names_with_placements_reader = self.__champ_names_with_placements_file_reader
         champion_names_with_placements = champion_names_with_placements_reader.load()
         champion_names_with_placements_list = champion_names_with_placements.columns.tolist()
 
