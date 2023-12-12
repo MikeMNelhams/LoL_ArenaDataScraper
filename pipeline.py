@@ -12,10 +12,14 @@ config = dotenv_values(".env")
 FILE_PATH = "LoL_ArenaData.json"
 
 
+def read_api_key() -> str:
+    return config["RIOT_DEV_KEY"]
+
+
 def save_recent_matches(summoner_name: str, region: str = "euw1", num_matches: int = 1):
     champion_stats_reader = ChampPlacementWriter("champion_placements.csv")
 
-    api_key = config["RIOT_DEV_KEY"]
+    api_key = read_api_key()
     watcher = LolWatcher(api_key)
     player_data = watcher.summoner.by_name(region, summoner_name)
     puuid = player_data["puuid"]
@@ -51,19 +55,28 @@ def print_best_champ_pairs(pairwise_data: PairwiseChampionData) -> None:
     return None
 
 
-def get_stats():
+def get_stats() -> None:
     champion_stats_reader = ChampPlacementWriter("champion_placements.csv")
     pairwise_data = PairwiseChampionData(champion_stats_reader.load())
 
-    print_best_stats(pairwise_data)
-    print_best_champ_pairs(pairwise_data)
-
-    print_row()
+    print_pairwise_stats_best(pairwise_data)
     champ_input = Champion(input("CHAMP? ").lower().replace(' ', ''))
+    print_champ_stats(champ_input, pairwise_data)
+    return None
 
+
+def print_champ_stats(champ_input: Champion, pairwise_data: PairwiseChampionData) -> None:
     print_champ_placement_stats(champ_input, pairwise_data)
     print_champ_average_pairwise_all(champ_input, pairwise_data)
     print_champ_average_pairwise_best(champ_input, pairwise_data)
+    return None
+
+
+def print_pairwise_stats_best(pairwise_data: PairwiseChampionData) -> None:
+    print_best_stats(pairwise_data)
+    print_best_champ_pairs(pairwise_data)
+    print_row()
+    return None
 
 
 def print_champ_average_pairwise_best(champ_input: Champion, pairwise_data: PairwiseChampionData) -> None:
@@ -90,15 +103,17 @@ def print_champ_placement_stats(champ_input: Champion, pairwise_data: PairwiseCh
     return None
 
 
-def make_empty():
+def make_empty() -> None:
     champion_stats_reader = ChampPlacementWriter("champion_placements.csv")
     champion_stats_reader.make_empty()
+    return None
 
 
-def add_new_champ():
+def add_new_champ() -> None:
     champ_input = Champion(input("CHAMP? ").lower().replace(' ', ''))
     champion_stats_writer = ChampPlacementWriter("champion_placements.csv")
     champion_stats_writer.add_new_champion(champ_input)
+    return None
 
 
 if __name__ == '__main__':
