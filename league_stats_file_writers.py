@@ -17,8 +17,12 @@ class ChampPlacementWriter(FileReader):
         self.__champ_names_file_reader = CSV_FileReader(self.champion_names_file_path)
         self.__champ_names_with_placements_file_reader = CSV_FileReader(self.champion_names_with_placements_file_path)
 
+    @property
+    def recorded_games(self) -> pd.DataFrame:
+        return self._recorded_games_reader.load()
+
     def save(self, match: Match) -> None:
-        recorded_games = self._recorded_games_reader.load()
+        recorded_games = self.recorded_games
         game_id = match.game_id
 
         if game_id in recorded_games.columns:

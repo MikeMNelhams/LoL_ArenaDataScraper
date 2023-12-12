@@ -220,6 +220,10 @@ class PairwiseChampionData:
         return sorted_champions.iloc[:, :max_display_number_of_pairs]
 
 
+def parse_match_puuids(match_detail: dict) -> list[str]:
+    return match_detail["metadata"]["participants"]
+
+
 def main():
     print("This is a library file. Do not run as main.")
 
