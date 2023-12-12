@@ -4,7 +4,7 @@ from dotenv import dotenv_values
 
 from league_stats_library import Champion, Match, PairwiseChampionData
 from league_stats_file_writers import ChampPlacementWriter
-from print_colours import colour_print_string_header
+from print_library import colour_print_string_header, print_row
 
 from riotwatcher import LolWatcher
 
@@ -32,7 +32,7 @@ def save_recent_matches(summoner_name: str, region: str = "euw1", num_matches: i
         match = Match.from_game_data(match_detail)
         print(match)
         champion_stats_reader.save(match)
-        print('-' * 30)
+        print_row()
 
     return None
 
@@ -58,24 +58,36 @@ def get_stats():
     print_best_stats(pairwise_data)
     print_best_champ_pairs(pairwise_data)
 
-    print('-' * 30)
+    print_row()
     champ_input = Champion(input("CHAMP? ").lower().replace(' ', ''))
 
-    placements_swain = pairwise_data.total_placements(champ_input)
-    placement_average_swain = pairwise_data.average_placement(champ_input)
+    print_champ_placement_stats(champ_input, pairwise_data)
+    print_champ_average_pairwise_all(champ_input, pairwise_data)
+    print_champ_average_pairwise_best(champ_input, pairwise_data)
 
-    print(colour_print_string_header(f"Placement Statistics for: \'{champ_input}\'"))
-    print(placements_swain)
-    print(placement_average_swain)
-    print('-' * 30)
 
-    print(colour_print_string_header(f"Average placements by champ for \'{champ_input}\'"))
-    print(pairwise_data.average_placement_by_teammate(champ_input).to_string())
-    print('-' * 30)
-
+def print_champ_average_pairwise_best(champ_input: Champion, pairwise_data: PairwiseChampionData) -> None:
     print(colour_print_string_header(f"Best average placements by champ for \'{champ_input}\'"))
     print(pairwise_data.best_teammates_for(champ_input).to_string())
-    print('-' * 30)
+    print_row()
+    return None
+
+
+def print_champ_average_pairwise_all(champ_input: Champion, pairwise_data: PairwiseChampionData) -> None:
+    print(colour_print_string_header(f"Average placements by champ for \'{champ_input}\'"))
+    print(pairwise_data.average_placement_by_teammate(champ_input).to_string())
+
+    return None
+
+
+def print_champ_placement_stats(champ_input: Champion, pairwise_data: PairwiseChampionData) -> None:
+    placements = pairwise_data.total_placements(champ_input)
+    placement_average = pairwise_data.average_placement(champ_input)
+    print(colour_print_string_header(f"Placement Statistics for: \'{champ_input}\'"))
+    print(placements)
+    print(placement_average)
+    print_row()
+    return None
 
 
 def make_empty():

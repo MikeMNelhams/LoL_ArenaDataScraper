@@ -31,7 +31,6 @@ class ChampPlacementWriter(FileReader):
         recorded_games = pd.DataFrame([], columns=recorded_games_data)
 
         recorded_games.to_csv(self._recorded_games_file_path, index=False)
-
         data = self.load()
 
         for i, team in enumerate(match.teams):

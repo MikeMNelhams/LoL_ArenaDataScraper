@@ -14,6 +14,11 @@ def colour_print_string_header(phrase: str) -> str:
     return f"{PrintColors.HEADER}{phrase}{PrintColors.ENDC}"
 
 
+def print_row(number_of_chars: int=50, char: str= '-') -> None:
+    print(char * number_of_chars)
+    return None
+
+
 def main():
     print("This is a library file, do not run as main.")
 
