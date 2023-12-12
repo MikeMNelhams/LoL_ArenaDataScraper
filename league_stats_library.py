@@ -81,6 +81,9 @@ class PairwiseChampionData:
         placements = self.__placements(champion2)
         return [int(placements[f"{champion1.name}_{i}"]) for i in range(1, 5)]
 
+    def total_matches(self) -> int:
+        return self.data.to_numpy().sum() // 2
+
     def total_placements(self, champion: Champion) -> np.array:
         placements = self.__placements(champion)
 

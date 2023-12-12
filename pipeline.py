@@ -55,16 +55,6 @@ def print_best_champ_pairs(pairwise_data: PairwiseChampionData) -> None:
     return None
 
 
-def get_stats() -> None:
-    champion_stats_reader = ChampPlacementWriter("champion_placements.csv")
-    pairwise_data = PairwiseChampionData(champion_stats_reader.load())
-
-    print_pairwise_stats_best(pairwise_data)
-    champ_input = Champion(input("CHAMP? ").lower().replace(' ', ''))
-    print_champ_stats(champ_input, pairwise_data)
-    return None
-
-
 def print_champ_stats(champ_input: Champion, pairwise_data: PairwiseChampionData) -> None:
     print_champ_placement_stats(champ_input, pairwise_data)
     print_champ_average_pairwise_all(champ_input, pairwise_data)
@@ -99,6 +89,23 @@ def print_champ_placement_stats(champ_input: Champion, pairwise_data: PairwiseCh
     print(colour_print_string_header(f"Placement Statistics for: \'{champ_input}\'"))
     print(placements)
     print(placement_average)
+    print_row()
+    return None
+
+
+def get_stats() -> None:
+    champion_stats_reader = ChampPlacementWriter("champion_placements.csv")
+    pairwise_data = PairwiseChampionData(champion_stats_reader.load())
+
+    print_number_of_matches(pairwise_data)
+    print_pairwise_stats_best(pairwise_data)
+    champ_input = Champion(input("CHAMP? ").lower().replace(' ', ''))
+    print_champ_stats(champ_input, pairwise_data)
+    return None
+
+
+def print_number_of_matches(pairwise_data: PairwiseChampionData) -> None:
+    print(f"Total number of matches recorded: {pairwise_data.total_matches()}")
     print_row()
     return None
 
