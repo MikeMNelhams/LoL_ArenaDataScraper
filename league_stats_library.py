@@ -77,6 +77,10 @@ class PairwiseChampionData:
     def __placements(self, champion: Champion) -> pd.DataFrame:
         return self.data.loc[champion.name]
 
+    def __placement_pairwise(self, champion1: Champion, champion2: Champion) -> list[int]:
+        placements = self.__placements(champion2)
+        return [int(placements[f"{champion1.name}_{i}"]) for i in range(1, 5)]
+
     def total_placements(self, champion: Champion) -> np.array:
         placements = self.__placements(champion)
 
@@ -133,51 +137,32 @@ class PairwiseChampionData:
         return pd.DataFrame([average_placements_list], columns=champ_names, index=pd.Index([champion.name]))
 
     def average_pairwise_placement(self, champion1: Champion, champion2: Champion) -> float:
-        placements = self.__placements(champion2)
-
-        num_firsts = int(placements[champion1.name + "_1"])
-        num_seconds = int(placements[champion1.name + "_2"])
-        num_thirds = int(placements[champion1.name + "_3"])
-        num_fourths = int(placements[champion1.name + "_4"])
-
-        number_of_placements = sum((num_firsts, num_seconds, num_thirds, num_fourths))
+        placements = self.__placement_pairwise(champion1, champion2)
+        number_of_placements = sum(placements)
 
         if number_of_placements == 0:
             return 0.0, 0
 
-        num_seconds *= 2
-        num_thirds *= 3
-        num_fourths *= 4
-        return sum((num_firsts, num_seconds, num_thirds, num_fourths)) / number_of_placements
+        for i in range(1, 5):
+            placements[i - 1] *= i
+
+        return sum(placements) / number_of_placements
 
     def __average_pairwise_placement_with_n(self, champion1: Champion, champion2: Champion) -> (float, int):
-        placements = self.__placements(champion2)
-
-        num_firsts = int(placements[champion1.name + "_1"])
-        num_seconds = int(placements[champion1.name + "_2"])
-        num_thirds = int(placements[champion1.name + "_3"])
-        num_fourths = int(placements[champion1.name + "_4"])
-
-        number_of_placements = sum((num_firsts, num_seconds, num_thirds, num_fourths))
+        placements = self.__placement_pairwise(champion1, champion2)
+        number_of_placements = sum(placements)
 
         if number_of_placements == 0:
             return 0.0, 0
 
-        num_seconds *= 2
-        num_thirds *= 3
-        num_fourths *= 4
+        for i in range(1, 5):
+            placements[i - 1] *= i
 
-        return sum((num_firsts, num_seconds, num_thirds, num_fourths)) / number_of_placements, number_of_placements
+        return sum(placements) / number_of_placements, number_of_placements
 
     def pairwise_placements(self, champion1: Champion, champion2: Champion) -> np.array:
-        placements = self.__placements(champion2)
-
-        num_firsts = int(placements[champion1.name + "_1"])
-        num_seconds = int(placements[champion1.name + "_2"])
-        num_thirds = int(placements[champion1.name + "_3"])
-        num_fourths = int(placements[champion1.name + "_4"])
-
-        return np.array((num_firsts, num_seconds, num_thirds, num_fourths))
+        placements = self.__placement_pairwise(champion1, champion2)
+        return np.array(placements)
 
     def best_teammates_for(self, champion: Champion, max_display_number_of_teammates: int = 10) -> pd.DataFrame:
         average_placements = self.average_placement_by_teammate(champion).copy()
@@ -232,3 +217,9 @@ class PairwiseChampionData:
         return sorted_champions.iloc[:, :max_display_number_of_pairs]
 
 
+def main():
+    print("This is a library file. Do not run as main.")
+
+
+if __name__ == "__main__":
+    main()
