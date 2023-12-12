@@ -19,8 +19,7 @@ def read_api_key() -> str:
 def save_recent_matches(summoner_name: str, region: str = "euw1", num_matches: int = 1):
     champion_stats_reader = ChampPlacementWriter("champion_placements.csv")
 
-    api_key = read_api_key()
-    watcher = LolWatcher(api_key)
+    watcher = LolWatcher(read_api_key())
     player_data = watcher.summoner.by_name(region, summoner_name)
     puuid = player_data["puuid"]
 
