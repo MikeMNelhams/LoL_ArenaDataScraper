@@ -8,7 +8,10 @@ import numpy as np
 
 class Champion:
     def __init__(self, name: str):
-        self.name = name.lower()
+        name_lower = name.lower()
+        self.name = name_lower
+        if name_lower == "nunu":
+            self.name = "nunu&willump"  # The RIOT backend is bugged, they use 2 names for Nunu.
 
     def __repr__(self):
         return self.name

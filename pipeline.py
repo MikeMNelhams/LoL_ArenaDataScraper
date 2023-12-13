@@ -133,7 +133,7 @@ def add_new_champ() -> None:
     return None
 
 
-def save_matches_recursive(summoner_name_seed: str, region: str = "euw1", num_matches: int=100,
+def save_matches_recursive(summoner_name_seed: str, region: str = "euw1", target_number_of_matches: int=100,
                            num_matches_to_check_per_player: int=10) -> None:
     champion_stats_reader = ChampPlacementWriter("champion_placements.csv")
 
@@ -147,7 +147,7 @@ def save_matches_recursive(summoner_name_seed: str, region: str = "euw1", num_ma
     match_ids_to_check = my_match_ids
     match_ids_checked = set(match_ids_to_check)
     recorded_games = set(champion_stats_reader.recorded_games.columns.tolist())
-    while i < num_matches or not match_ids_to_check:
+    while i < target_number_of_matches or not match_ids_to_check:
         pop_index = random.randint(0, max(len(match_ids_to_check) - 1, 1))  # Randomised to prevent recency bias
         current_match_id = match_ids_to_check.pop(pop_index)
         match_ids_checked.add(current_match_id)
@@ -179,6 +179,7 @@ def save_matches_recursive(summoner_name_seed: str, region: str = "euw1", num_ma
             print(f"Match: {match} already saved")
         else:
             print(f"Saving match #{i}: \'{match}\'")
+            print(match_detail)
             champion_stats_reader.save(match)
             recorded_games.add(current_match_id)
             i += 1
@@ -187,7 +188,7 @@ def save_matches_recursive(summoner_name_seed: str, region: str = "euw1", num_ma
 
 
 if __name__ == '__main__':
-    # save_recent_matches(config["MY_SUMMONER_NAME"], num_matches=1)
+    # save_recent_matches(config["MY_SUMMONER_NAME"])
     # get_stats()
 
     save_matches_recursive(config["MY_SUMMONER_NAME"])

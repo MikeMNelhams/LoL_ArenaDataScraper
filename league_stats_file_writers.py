@@ -41,8 +41,8 @@ class ChampPlacementWriter(FileReader):
             champion1 = team.champions[0]
             champion2 = team.champions[1]
             placement = match.scoreboard[i]
-            data[champion1.name + f"_{placement}"][champion2.name] += 1
-            data[champion2.name + f"_{placement}"][champion1.name] += 1
+            data[f"{champion1.name}_{placement}"][champion2.name] += 1
+            data[f"{champion2.name}_{placement}"][champion1.name] += 1
 
         data.to_csv(self.file_path, header=True)
         return None
