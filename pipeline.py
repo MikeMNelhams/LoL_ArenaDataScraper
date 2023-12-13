@@ -13,6 +13,7 @@ from riotwatcher import LolWatcher
 
 config = dotenv_values(".env")
 FILE_PATH = "LoL_ArenaData.json"
+ARENA_GAME_MODE_NAME = "CHERRY"
 
 
 def read_api_key() -> str:
@@ -40,7 +41,7 @@ def save_recent_matches(summoner_name: str, region: str = "euw1", num_matches: i
     for i in range(num_matches):
         last_match_Id = my_matches[i]
         match_detail = watcher.match.by_id(region, last_match_Id)
-        if match_detail["info"]["gameMode"] != "CHERRY":
+        if match_detail["info"]["gameMode"] != ARENA_GAME_MODE_NAME:
             print(f"Incorrect game mode for match {i}")
             return None
 
@@ -153,7 +154,7 @@ def save_matches_recursive(summoner_name_seed: str, region: str = "euw1", target
         match_ids_checked.add(current_match_id)
         match_detail = watcher.match.by_id(region, current_match_id)
 
-        if match_detail["info"]["gameMode"] != "CHERRY":
+        if match_detail["info"]["gameMode"] != ARENA_GAME_MODE_NAME:
             print(f"Incorrect game mode for match {i}")
             continue
 
@@ -179,7 +180,6 @@ def save_matches_recursive(summoner_name_seed: str, region: str = "euw1", target
             print(f"Match: {match} already saved")
         else:
             print(f"Saving match #{i}: \'{match}\'")
-            print(match_detail)
             champion_stats_reader.save(match)
             recorded_games.add(current_match_id)
             i += 1
@@ -188,9 +188,9 @@ def save_matches_recursive(summoner_name_seed: str, region: str = "euw1", target
 
 
 if __name__ == '__main__':
-    # save_recent_matches(config["MY_SUMMONER_NAME"])
-    # get_stats()
+    save_recent_matches(config["MY_SUMMONER_NAME"])
+    get_stats()
 
-    save_matches_recursive(config["MY_SUMMONER_NAME"])
+    # save_matches_recursive(config["MY_SUMMONER_NAME"])
 
     # add_new_champ()
