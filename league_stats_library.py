@@ -89,13 +89,8 @@ class PairwiseChampionData:
 
     def total_placements(self, champion: Champion) -> np.array:
         placements = self.__placements(champion)
-
-        number_of_firsts = np.sum(placements.iloc[::4].to_numpy())
-        number_of_seconds = np.sum(placements.iloc[1::4].to_numpy())
-        number_of_thirds = np.sum(placements.iloc[2::4].to_numpy())
-        number_of_fourths = np.sum(placements.iloc[3::4].to_numpy())
-
-        return np.array((number_of_firsts, number_of_seconds, number_of_thirds, number_of_fourths))
+        placement_numbers = tuple(np.sum(placements.iloc[i::4].to_numpy()) for i in range(4))
+        return np.array(placement_numbers)
 
     def average_placement(self, champion: Champion) -> float:
         placements = self.total_placements(champion)
@@ -128,10 +123,11 @@ class PairwiseChampionData:
 
         for i in range(num_champs):
             champ_name = champ_names[i]
-            num_firsts = placements[champ_name + "_1"]
-            num_seconds = placements[champ_name + "_2"]
-            num_thirds = placements[champ_name + "_3"]
-            num_fourths = placements[champ_name + "_4"]
+
+            num_firsts = placements[f"{champ_name}_1"]
+            num_seconds = placements[f"{champ_name}_2"]
+            num_thirds = placements[f"{champ_name}_3"]
+            num_fourths = placements[f"{champ_name}_4"]
             total_num_placements = sum((num_firsts, num_seconds, num_thirds, num_fourths))
 
             if total_num_placements == 0:

@@ -14,6 +14,7 @@ from riotwatcher import LolWatcher
 config = dotenv_values(".env")
 FILE_PATH = "LoL_ArenaData.json"
 ARENA_GAME_MODE_NAME = "CHERRY"
+DISPLAY_NUMBER = 20
 
 
 def read_api_key() -> str:
@@ -55,14 +56,14 @@ def save_recent_matches(summoner_name: str, region: str = "euw1", num_matches: i
 
 def print_best_stats(pairwise_data: PairwiseChampionData) -> None:
     print(colour_print_string_header("Best overall stats:"))
-    best_stats = pairwise_data.best_champs()
+    best_stats = pairwise_data.best_champs(DISPLAY_NUMBER)
     print(best_stats.to_string())
     return None
 
 
 def print_best_champ_pairs(pairwise_data: PairwiseChampionData) -> None:
     print(f"\n{colour_print_string_header('Best champ pairs:')}")
-    best_pairs = pairwise_data.best_pairs()
+    best_pairs = pairwise_data.best_pairs(DISPLAY_NUMBER)
     print(best_pairs.to_string())
     return None
 
@@ -134,7 +135,7 @@ def add_new_champ() -> None:
     return None
 
 
-def save_matches_recursive(summoner_name_seed: str, region: str = "euw1", target_number_of_matches: int=100,
+def save_matches_recursive(summoner_name_seed: str, region: str = "euw1", target_number_of_matches: int=1_000,
                            num_matches_to_check_per_player: int=10) -> None:
     champion_stats_reader = ChampPlacementWriter("champion_placements.csv")
 
@@ -187,10 +188,14 @@ def save_matches_recursive(summoner_name_seed: str, region: str = "euw1", target
     return None
 
 
-if __name__ == '__main__':
+def main():
     save_recent_matches(config["MY_SUMMONER_NAME"])
     get_stats()
 
     # save_matches_recursive(config["MY_SUMMONER_NAME"])
 
     # add_new_champ()
+
+
+if __name__ == '__main__':
+    main()
