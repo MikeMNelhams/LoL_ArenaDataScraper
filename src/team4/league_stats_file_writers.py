@@ -1,16 +1,17 @@
 import numpy as np
+import pandas as pd
 from bisect import insort, bisect
 
-from file_writers_library import FileReader, CSV_FileReader
-from league_stats_library import Match, Champion
-import pandas as pd
+from src.file_writers_library import FileReader, CSV_FileReader
+from src.league_library import Champion
+from src.team4.league_stats_library import Match
 
 
 class ChampPlacementWriter(FileReader):
     champion_names_file_path = "champion_names.csv"
     champion_names_with_placements_file_path = "champion_names_with_placements.csv"
 
-    def __init__(self, file_path: str, recorded_games_file_path: str = "recorded_games.csv"):
+    def __init__(self, file_path: str, recorded_games_file_path: str = "recorded_games_team4.csv"):
         super(ChampPlacementWriter, self).__init__(file_path)
         self._recorded_games_file_path = recorded_games_file_path
         self._recorded_games_reader = CSV_FileReader(recorded_games_file_path)

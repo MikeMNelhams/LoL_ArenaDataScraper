@@ -5,9 +5,11 @@ import time
 
 from dotenv import dotenv_values
 
-from league_stats_library import Champion, Match, PairwiseChampionData, parse_match_puuids
-from league_stats_file_writers import ChampPlacementWriter
-from print_library import colour_print_string_header, print_row
+from src.league_library import Champion
+from src.team4.league_stats_library import Match, PairwiseChampionData, parse_match_puuids
+from src.team4.league_stats_file_writers import ChampPlacementWriter
+from src.lol_api_library import get_player_puuid, get_puuid_matches
+from src.print_library import colour_print_string_header, print_row
 
 from riotwatcher import LolWatcher
 
@@ -21,26 +23,15 @@ def read_api_key() -> str:
     return config["RIOT_DEV_KEY"]
 
 
-def get_summoners_matches(region, summoner_name, watcher, start: int=0, count: int=20):
-    player_data = watcher.summoner.by_name(region, summoner_name)
-    puuid = player_data["puuid"]
-    return get_puuid_matches(region, puuid, watcher, start=start, count=count)
-
-
-def get_puuid_matches(region, puuid, watcher, start: int=0, count: int=20):
-    my_matches = watcher.match.matchlist_by_puuid(region, puuid, start=start, count=count)
-    return my_matches
-
-
-def save_recent_matches(summoner_name: str, region: str = "euw1", num_matches: int = 1):
-    champion_stats_reader = ChampPlacementWriter("champion_placements.csv")
-
+def save_recent_matches(summoner_name: str, player_tagline: str, region: str = "euw1", num_matches: int = 1):
+    champion_stats_reader = ChampPlacementWriter("champion_placements_team4.csv")
     watcher = LolWatcher(read_api_key())
 
-    my_matches = get_summoners_matches(region, summoner_name, watcher)
+    puuid = get_player_puuid(summoner_name, player_tagline, read_api_key)
+    match_ids = get_puuid_matches(region, puuid, watcher, count=num_matches)
 
     for i in range(num_matches):
-        last_match_Id = my_matches[i]
+        last_match_Id = match_ids[i]
         match_detail = watcher.match.by_id(region, last_match_Id)
         if match_detail["info"]["gameMode"] != ARENA_GAME_MODE_NAME:
             print(f"Incorrect game mode for match {i}")
@@ -112,7 +103,7 @@ def print_number_of_matches(pairwise_data: PairwiseChampionData) -> None:
 
 
 def get_stats() -> None:
-    champion_stats_reader = ChampPlacementWriter("champion_placements.csv")
+    champion_stats_reader = ChampPlacementWriter("champion_placements_team4.csv")
     pairwise_data = PairwiseChampionData(champion_stats_reader.load())
 
     print_number_of_matches(pairwise_data)
@@ -123,30 +114,30 @@ def get_stats() -> None:
 
 
 def make_empty() -> None:
-    champion_stats_reader = ChampPlacementWriter("champion_placements.csv")
+    champion_stats_reader = ChampPlacementWriter("champion_placements_team4.csv")
     champion_stats_reader.make_empty()
     return None
 
 
 def add_new_champ() -> None:
     champ_input = Champion(input("CHAMP? ").lower().replace(' ', ''))
-    champion_stats_writer = ChampPlacementWriter("champion_placements.csv")
+    champion_stats_writer = ChampPlacementWriter("champion_placements_team4.csv")
     champion_stats_writer.add_new_champion(champ_input)
     return None
 
 
-def save_matches_recursive(summoner_name_seed: str, region: str = "euw1", target_number_of_matches: int=1_000,
+def save_matches_recursive(summoner_name_seed: str, tagline_seed: str, region: str = "euw1", target_number_of_matches: int=1_000,
                            num_matches_to_check_per_player: int=10) -> None:
-    champion_stats_reader = ChampPlacementWriter("champion_placements.csv")
+    champion_stats_reader = ChampPlacementWriter("champion_placements_team4.csv")
 
     watcher = LolWatcher(read_api_key())
 
-    my_match_ids = get_summoners_matches(region, summoner_name_seed, watcher, count=num_matches_to_check_per_player)
-    my_puuid = watcher.summoner.by_name(region, summoner_name_seed)["puuid"]
+    puuid_seed = get_player_puuid(summoner_name_seed, tagline_seed, read_api_key)
+    match_ids = get_puuid_matches(region, puuid_seed, watcher, count=num_matches_to_check_per_player)
 
     i = 1
-    player_puuids_checked = {my_puuid}
-    match_ids_to_check = my_match_ids
+    player_puuids_checked = {puuid_seed}
+    match_ids_to_check = match_ids
     match_ids_checked = set(match_ids_to_check)
     recorded_games = set(champion_stats_reader.recorded_games.columns.tolist())
     while i < target_number_of_matches or not match_ids_to_check:
@@ -189,10 +180,10 @@ def save_matches_recursive(summoner_name_seed: str, region: str = "euw1", target
 
 
 def main():
-    save_recent_matches(config["MY_SUMMONER_NAME"])
-    get_stats()
+    # get_recent_matches(config["MY_SUMMONER_NAME"])
+    # get_stats()
 
-    # save_matches_recursive(config["MY_SUMMONER_NAME"])
+    save_matches_recursive(config["MY_SUMMONER_NAME"], config["MY_TAGLINE"])
 
     # add_new_champ()
 
