@@ -5,7 +5,7 @@ import time
 
 from dotenv import dotenv_values
 
-from riotwatcher import LolWatcher
+from riotwatcher import LolWatcher, ApiError
 
 from src.team8.league_stats_library import Champion, Match
 from src.team8.league_stats_file_writers import ChampPlacementWriter
@@ -144,10 +144,16 @@ def save_matches_recursive(summoner_name_seed: str, tagline_seed: str, region: s
         pop_index = random.randint(0, max(len(match_ids_to_check) - 1, 1))  # Randomised to prevent recency bias
         current_match_id = match_ids_to_check.pop(pop_index)
         match_ids_checked.add(current_match_id)
-        match_detail = watcher.match.by_id(region, current_match_id)
+        try:
+            match_detail = watcher.match.by_id(region, current_match_id)
+        except ApiError as e:
+            print(f"Error occurred for match id: \'{current_match_id}\'")
+            print(e)
+            print(f"Skipping match id: \'{current_match_id}\'")
+            continue
 
         if match_detail["info"]["gameMode"] != ARENA_GAME_MODE_NAME:
-            print(f"Incorrect game mode for match {i}")
+            print(f"Incorrect game mode for match #{i}")
             continue
 
         time.sleep(3)  # Rate limiting as to not time-out (Max 1 requests per 3 seconds)
@@ -156,9 +162,10 @@ def save_matches_recursive(summoner_name_seed: str, tagline_seed: str, region: s
 
         for puuid in match_puuids:
             if puuid not in player_puuids_checked:
-                print(f"Found new player puuid: \'{puuid}\'")
+                print(f"Found new player puuid: \'{puuid}\'. "
+                      f"Checking the past {num_matches_to_check_per_player} from their match history.")
                 player_puuids_checked.add(puuid)
-                # Even though possible not, it's likely the 0th index match is the match you searched by.
+                # Even though possible not, it's likely the 0th index match is the match you searched by, so start at 1
                 player_matches = get_puuid_matches(region, puuid, watcher,
                                                        start=1, count=num_matches_to_check_per_player)
                 time.sleep(6)  # Rate limiting as to not time-out (Max 2 requests per 6 seconds)
@@ -185,4 +192,3 @@ if __name__ == "__main__":
     save_matches_recursive(config["MY_SUMMONER_NAME"], config["MY_TAGLINE"])
 
     # get_stats()
-    # add_new_champ()
