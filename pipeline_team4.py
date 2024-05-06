@@ -6,7 +6,8 @@ import time
 from dotenv import dotenv_values
 
 from src.league_library import Champion
-from src.team4.league_stats_library import Match, PairwiseChampionData, parse_match_puuids
+from src.team4.league_stats_library import Match, parse_match_puuids
+from src.pairwise_analysis_library import PairwiseChampionData
 from src.team4.league_stats_file_writers import ChampPlacementWriter
 from src.lol_api_library import get_player_puuid, get_puuid_matches
 from src.print_library import colour_print_string_header, print_row
@@ -14,7 +15,6 @@ from src.print_library import colour_print_string_header, print_row
 from riotwatcher import LolWatcher
 
 config = dotenv_values(".env")
-FILE_PATH = "LoL_ArenaData.json"
 ARENA_GAME_MODE_NAME = "CHERRY"
 DISPLAY_NUMBER = 20
 
@@ -180,7 +180,7 @@ def save_matches_recursive(summoner_name_seed: str, tagline_seed: str, region: s
 
 
 def main():
-    # get_recent_matches(config["MY_SUMMONER_NAME"])
+    # save_recent_matches(config["MY_SUMMONER_NAME"])
     # get_stats()
 
     save_matches_recursive(config["MY_SUMMONER_NAME"], config["MY_TAGLINE"])

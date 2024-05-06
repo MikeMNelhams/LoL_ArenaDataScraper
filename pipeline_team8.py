@@ -4,18 +4,100 @@ from dotenv import dotenv_values
 
 from riotwatcher import LolWatcher
 
-from src.team8.league_stats_library import Match
+from src.team8.league_stats_library import Champion, Match
+from src.team8.league_stats_file_writers import ChampPlacementWriter
+from src.pairwise_analysis_library import PairwiseChampionData
 from src.lol_api_library import get_puuid_matches, get_player_puuid
+
+from src.print_library import colour_print_string_header, print_row
 
 config = dotenv_values(".env")
 ARENA_GAME_MODE_NAME = "CHERRY"
+DISPLAY_NUMBER = 20
 
 
 def read_api_key() -> str:
     return config["RIOT_DEV_KEY"]
 
 
-def get_recent_matches(summoner_name: str, player_tagline: str, region: str = "euw1", num_matches: int = 1):
+def make_empty() -> None:
+    champion_stats_reader = ChampPlacementWriter("champion_placements_team8.csv")
+    champion_stats_reader.make_empty()
+    return None
+
+
+def print_number_of_matches(pairwise_data: PairwiseChampionData) -> None:
+    print(f"Total number of matches recorded: {pairwise_data.total_matches()}")
+    print_row()
+    return None
+
+
+def print_best_stats(pairwise_data: PairwiseChampionData) -> None:
+    print(colour_print_string_header("Best overall stats:"))
+    best_stats = pairwise_data.best_champs(DISPLAY_NUMBER)
+    print(best_stats.to_string())
+    return None
+
+
+def print_best_champ_pairs(pairwise_data: PairwiseChampionData) -> None:
+    print(f"\n{colour_print_string_header('Best champ pairs:')}")
+    best_pairs = pairwise_data.best_pairs(DISPLAY_NUMBER)
+    print(best_pairs.to_string())
+    return None
+
+
+def print_champ_placement_stats(champ_input: Champion, pairwise_data: PairwiseChampionData) -> None:
+    placements = pairwise_data.total_placements(champ_input)
+    placement_average = pairwise_data.average_placement(champ_input)
+    print(colour_print_string_header(f"Placement Statistics for: \'{champ_input}\'"))
+    print(placements)
+    print(placement_average)
+    print_row()
+    return None
+
+
+def print_champ_average_pairwise_best(champ_input: Champion, pairwise_data: PairwiseChampionData) -> None:
+    print(colour_print_string_header(f"Best average placements by champ for \'{champ_input}\'"))
+    print(pairwise_data.best_teammates_for(champ_input).to_string())
+    print_row()
+    return None
+
+
+def print_champ_average_pairwise_all(champ_input: Champion, pairwise_data: PairwiseChampionData) -> None:
+    print(colour_print_string_header(f"Average placements by champ for \'{champ_input}\'"))
+    print(pairwise_data.average_placement_by_teammate(champ_input).to_string())
+    return None
+
+
+def print_champ_stats(champ_input: Champion, pairwise_data: PairwiseChampionData) -> None:
+    print_champ_placement_stats(champ_input, pairwise_data)
+    print_champ_average_pairwise_all(champ_input, pairwise_data)
+    print_champ_average_pairwise_best(champ_input, pairwise_data)
+    return None
+
+
+def print_pairwise_stats_best(pairwise_data: PairwiseChampionData) -> None:
+    print_best_stats(pairwise_data)
+    print_best_champ_pairs(pairwise_data)
+    print_row()
+    return None
+
+
+def get_stats() -> None:
+    champion_stats_reader = ChampPlacementWriter("champion_placements_team8.csv")
+    pd_data = champion_stats_reader.load()
+    pd_data.drop(pd_data.columns[0], axis=1, inplace=True)  # TODO have it read correctly without need 4 altering
+    pairwise_data = PairwiseChampionData(pd_data, player_count=8)
+    print(pairwise_data.data)
+    print_number_of_matches(pairwise_data)
+    print_pairwise_stats_best(pairwise_data)
+    champ_input = Champion(input("CHAMP? ").lower().replace(' ', ''))
+    print_champ_stats(champ_input, pairwise_data)
+    return None
+
+
+def save_recent_matches(summoner_name: str, player_tagline: str, region: str = "euw1", num_matches: int = 1):
+    champion_stats_reader = ChampPlacementWriter("champion_placements_team8.csv")
     watcher = LolWatcher(read_api_key())
     puuid = get_player_puuid(summoner_name, player_tagline, read_api_key)
     match_ids = get_puuid_matches(region, puuid, watcher, count=num_matches)
@@ -29,9 +111,13 @@ def get_recent_matches(summoner_name: str, player_tagline: str, region: str = "e
 
         match = Match.from_game_data(match_detail)
         print(match)
+        champion_stats_reader.save(match)
+        print_row()
 
     return None
 
 
 if __name__ == "__main__":
-    get_recent_matches(config["MY_SUMMONER_NAME"], config["MY_TAGLINE"])
+    # save_recent_matches(config["MY_SUMMONER_NAME"], config["MY_TAGLINE"])
+
+    get_stats()
