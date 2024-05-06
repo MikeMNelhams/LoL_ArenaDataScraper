@@ -6,10 +6,10 @@ import time
 from dotenv import dotenv_values
 
 from src.league_library import Champion
-from src.team4.league_stats_library import Match, parse_match_puuids
+from src.team4.league_stats_library import Match
 from src.pairwise_analysis_library import PairwiseChampionData
 from src.team4.league_stats_file_writers import ChampPlacementWriter
-from src.lol_api_library import get_player_puuid, get_puuid_matches
+from src.lol_api_library import get_player_puuid, get_puuid_matches, parse_match_puuids
 from src.print_library import colour_print_string_header, print_row
 
 from riotwatcher import LolWatcher

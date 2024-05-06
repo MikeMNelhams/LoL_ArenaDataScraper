@@ -1,5 +1,8 @@
 from __future__ import annotations
 
+import random
+import time
+
 from dotenv import dotenv_values
 
 from riotwatcher import LolWatcher
@@ -7,7 +10,7 @@ from riotwatcher import LolWatcher
 from src.team8.league_stats_library import Champion, Match
 from src.team8.league_stats_file_writers import ChampPlacementWriter
 from src.pairwise_analysis_library import PairwiseChampionData
-from src.lol_api_library import get_puuid_matches, get_player_puuid
+from src.lol_api_library import get_puuid_matches, get_player_puuid, parse_match_puuids
 
 from src.print_library import colour_print_string_header, print_row
 
@@ -117,7 +120,62 @@ def save_recent_matches(summoner_name: str, player_tagline: str, region: str = "
     return None
 
 
+def save_matches_recursive(summoner_name_seed: str, tagline_seed: str, region: str = "euw1", target_number_of_matches: int=1_000,
+                           num_matches_to_check_per_player: int=10) -> None:
+    champion_stats_reader = ChampPlacementWriter("champion_placements_team8.csv")
+
+    watcher = LolWatcher(read_api_key())
+
+    puuid_seed = get_player_puuid(summoner_name_seed, tagline_seed, read_api_key)
+    match_ids = get_puuid_matches(region, puuid_seed, watcher, count=num_matches_to_check_per_player)
+
+    i = 1
+    player_puuids_checked = {puuid_seed}
+    match_ids_to_check = match_ids
+    match_ids_checked = set(match_ids_to_check)
+    recorded_games = set(champion_stats_reader.recorded_games.columns.tolist())
+    while i < target_number_of_matches or not match_ids_to_check:
+        pop_index = random.randint(0, max(len(match_ids_to_check) - 1, 1))  # Randomised to prevent recency bias
+        current_match_id = match_ids_to_check.pop(pop_index)
+        match_ids_checked.add(current_match_id)
+        match_detail = watcher.match.by_id(region, current_match_id)
+
+        if match_detail["info"]["gameMode"] != ARENA_GAME_MODE_NAME:
+            print(f"Incorrect game mode for match {i}")
+            continue
+
+        time.sleep(3)  # Rate limiting as to not time-out (Max 1 requests per 3 seconds)
+        match_puuids = parse_match_puuids(match_detail)
+        match = Match.from_game_data(match_detail)
+
+        for puuid in match_puuids:
+            if puuid not in player_puuids_checked:
+                print(f"Found new player puuid: \'{puuid}\'")
+                player_puuids_checked.add(puuid)
+                # Even though possible not, it's likely the 0th index match is the match you searched by.
+                player_matches = get_puuid_matches(region, puuid, watcher,
+                                                       start=1, count=num_matches_to_check_per_player)
+                time.sleep(6)  # Rate limiting as to not time-out (Max 2 requests per 6 seconds)
+                for match_id in player_matches:
+                    if match_id not in match_ids_checked:
+                        match_ids_to_check.append(match_id)
+                        match_ids_checked.add(match_id)
+                print_row()
+
+        if current_match_id in recorded_games:
+            print(f"Match: {match} already saved")
+        else:
+            print(f"Saving match #{i}: \'{match}\'")
+            champion_stats_reader.save(match)
+            recorded_games.add(current_match_id)
+            i += 1
+
+    return None
+
+
 if __name__ == "__main__":
     # save_recent_matches(config["MY_SUMMONER_NAME"], config["MY_TAGLINE"])
 
-    get_stats()
+    save_matches_recursive(config["MY_SUMMONER_NAME"], config["MY_TAGLINE"])
+
+    # get_stats()

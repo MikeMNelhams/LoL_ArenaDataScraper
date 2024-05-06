@@ -22,3 +22,7 @@ def get_player_puuid(game_name: str, tag_line: str, api_key_generator: Callable[
     response = requests.get(request_url)
     data = response.json()
     return data["puuid"]
+
+
+def parse_match_puuids(match_detail: dict) -> list[str]:
+    return match_detail["metadata"]["participants"]
