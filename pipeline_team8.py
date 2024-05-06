@@ -155,8 +155,9 @@ def save_matches_recursive(summoner_name_seed: str, tagline_seed: str, region: s
         if match_detail["info"]["gameMode"] != ARENA_GAME_MODE_NAME:
             print(f"Incorrect game mode for match #{i}")
             continue
-        if len(match_detail["info"]["participants"]) != 8:
-            print(f"The match found is a game of arena, but has {len(match_detail["info"]["participants"])} players in it!")
+        player_count = len(match_detail["info"]["participants"])
+        if player_count != 16:
+            print(f"Match with id: \'{current_match_id}\' is a game of arena, but has {player_count} players in it!")
             continue
 
         time.sleep(3)  # Rate limiting as to not time-out (Max 1 requests per 3 seconds)
