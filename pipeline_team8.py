@@ -29,6 +29,13 @@ def make_empty() -> None:
     return None
 
 
+def add_new_champ() -> None:
+    champ_input = Champion(input("CHAMP? ").lower().replace(' ', ''))
+    champion_stats_writer = ChampPlacementWriter("champion_placements_team8.csv")
+    champion_stats_writer.add_new_champion(champ_input)
+    return None
+
+
 def print_number_of_matches(pairwise_data: PairwiseChampionData) -> None:
     print(f"Total number of matches recorded: {pairwise_data.total_matches()}")
     print_row()
@@ -91,7 +98,6 @@ def get_stats() -> None:
     pd_data = champion_stats_reader.load()
     pd_data.drop(pd_data.columns[0], axis=1, inplace=True)  # TODO have it read correctly without need 4 altering
     pairwise_data = PairwiseChampionData(pd_data, player_count=8)
-    print(pairwise_data.data)
     print_number_of_matches(pairwise_data)
     print_pairwise_stats_best(pairwise_data)
     champ_input = Champion(input("CHAMP? ").lower().replace(' ', ''))
@@ -179,3 +185,4 @@ if __name__ == "__main__":
     save_matches_recursive(config["MY_SUMMONER_NAME"], config["MY_TAGLINE"])
 
     # get_stats()
+    # add_new_champ()

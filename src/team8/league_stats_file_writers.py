@@ -1,5 +1,6 @@
 import numpy as np
 import pandas as pd
+from bisect import insort, bisect
 
 from src.file_writers_library import FileReader, CSV_FileReader
 from src.team8.league_stats_library import Champion, Match
@@ -81,4 +82,63 @@ class ChampPlacementWriter(FileReader):
         with open(self._recorded_games_file_path, 'w'):
             pass
         print(f"Files: {self.file_path} and {self._recorded_games_file_path} have been reset to default empty.")
+        return None
+
+    def add_new_champion(self, champion: Champion) -> None:
+        self.add_new_champion_name(champion)
+        self.add_new_champion_name_with_placements(champion)
+        self.add_new_champion_to_placements(champion)
+        return None
+
+    def add_new_champion_to_placements(self, champion: Champion) -> None:
+        placement_data = self.load()
+        insert_index = bisect(placement_data.columns.tolist(), f"{champion.name}_1")
+        zeroes = [0 for _ in range(placement_data.shape[0])]
+        for i in range(1, 9):
+            placement_data.insert(loc=insert_index + i - 1, column=f"{champion.name}_{i}",
+                                  value=zeroes.copy())
+        index_names = placement_data.index.tolist()
+
+        insert_index = bisect(index_names, champion.name)
+        dataframe_above = placement_data.iloc[:insert_index, :]
+        dataframe_below = placement_data.iloc[insert_index:, :]
+
+        zeroes = [0 for _ in range(placement_data.shape[1])]
+
+        new_row = pd.DataFrame([zeroes], columns=placement_data.columns.tolist(), index=[champion.name])
+        placement_data = pd.concat((dataframe_above, new_row, dataframe_below))
+
+        placement_data.to_csv(self.file_path)
+        return None
+
+    def add_new_champion_name(self, champion: Champion) -> None:
+        champion_names_reader = self.__champ_names_file_reader
+        champion_names = champion_names_reader.load()
+        champion_names.columns = champion_names.columns.str.lower()
+        champion_names_list = champion_names.columns.tolist()
+
+        if champion.name in champion_names_list:
+            print(f"The champion: \'{champion.name}\' is already added!")
+            return None
+
+        insort(champion_names_list, champion.name)
+
+        champion_names = pd.DataFrame(columns=champion_names_list)
+        champion_names_reader.save(champion_names)
+        return None
+
+    def add_new_champion_name_with_placements(self, champion: Champion) -> None:
+        champion_names_with_placements_reader = self.__champ_names_with_placements_file_reader
+        champion_names_with_placements = champion_names_with_placements_reader.load()
+        champion_names_with_placements_list = champion_names_with_placements.columns.tolist()
+
+        if f"{champion.name}_1" in champion_names_with_placements_list:
+            print(f"The champion: \'{champion.name}\' is already added!")
+            return None
+
+        for i in range(1, 9):
+            insort(champion_names_with_placements_list, f"{champion.name}_{i}")
+
+        champion_names_with_placements = pd.DataFrame(columns=champion_names_with_placements_list)
+        champion_names_with_placements_reader.save(champion_names_with_placements)
         return None
