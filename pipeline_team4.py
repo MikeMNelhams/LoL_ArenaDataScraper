@@ -180,10 +180,9 @@ def save_matches_recursive(summoner_name_seed: str, tagline_seed: str, region: s
 
 
 def main():
-    # save_recent_matches(config["MY_SUMMONER_NAME"])
-    # get_stats()
-
-    save_matches_recursive(config["MY_SUMMONER_NAME"], config["MY_TAGLINE"])
+    # save_recent_matches(config["MY_SUMMONER_NAME"], config["MY_TAGLINE"])
+    # save_matches_recursive(config["MY_SUMMONER_NAME"], config["MY_TAGLINE"])
+    get_stats()
 
     # add_new_champ()
 

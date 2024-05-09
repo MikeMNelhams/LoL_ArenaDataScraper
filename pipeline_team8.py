@@ -17,6 +17,7 @@ from src.print_library import colour_print_string_header, print_row
 config = dotenv_values(".env")
 ARENA_GAME_MODE_NAME = "CHERRY"
 DISPLAY_NUMBER = 20
+CHAMPION_PLACEMENTS_FILE_NAME = "champion_placements_team8.csv"
 
 
 def read_api_key() -> str:
@@ -24,14 +25,14 @@ def read_api_key() -> str:
 
 
 def make_empty() -> None:
-    champion_stats_reader = ChampPlacementWriter("champion_placements_team8.csv")
+    champion_stats_reader = ChampPlacementWriter(CHAMPION_PLACEMENTS_FILE_NAME)
     champion_stats_reader.make_empty()
     return None
 
 
 def add_new_champ() -> None:
     champ_input = Champion(input("CHAMP? ").lower().replace(' ', ''))
-    champion_stats_writer = ChampPlacementWriter("champion_placements_team8.csv")
+    champion_stats_writer = ChampPlacementWriter(CHAMPION_PLACEMENTS_FILE_NAME)
     champion_stats_writer.add_new_champion(champ_input)
     return None
 
@@ -94,7 +95,7 @@ def print_pairwise_stats_best(pairwise_data: PairwiseChampionData) -> None:
 
 
 def get_stats() -> None:
-    champion_stats_reader = ChampPlacementWriter("champion_placements_team8.csv")
+    champion_stats_reader = ChampPlacementWriter(CHAMPION_PLACEMENTS_FILE_NAME)
     pd_data = champion_stats_reader.load()
     pd_data.drop(pd_data.columns[0], axis=1, inplace=True)  # TODO have it read correctly without need 4 altering
     pairwise_data = PairwiseChampionData(pd_data, player_count=8)
@@ -106,14 +107,14 @@ def get_stats() -> None:
 
 
 def save_recent_matches(summoner_name: str, player_tagline: str, region: str = "euw1", num_matches: int = 1):
-    champion_stats_reader = ChampPlacementWriter("champion_placements_team8.csv")
+    champion_stats_reader = ChampPlacementWriter(CHAMPION_PLACEMENTS_FILE_NAME)
     watcher = LolWatcher(read_api_key())
     puuid = get_player_puuid(summoner_name, player_tagline, read_api_key)
     match_ids = get_puuid_matches(region, puuid, watcher, count=num_matches)
 
     for i in range(num_matches):
-        last_match_Id = match_ids[i]
-        match_detail = watcher.match.by_id(region, last_match_Id)
+        last_match_id = match_ids[i]
+        match_detail = watcher.match.by_id(region, last_match_id)
         if match_detail["info"]["gameMode"] != ARENA_GAME_MODE_NAME:
             print(f"Incorrect game mode for match {i}")
             return None
@@ -128,14 +129,13 @@ def save_recent_matches(summoner_name: str, player_tagline: str, region: str = "
 
 def save_matches_recursive(summoner_name_seed: str, tagline_seed: str, region: str = "euw1", target_number_of_matches: int=1_000,
                            num_matches_to_check_per_player: int=10) -> None:
-    champion_stats_reader = ChampPlacementWriter("champion_placements_team8.csv")
-
+    champion_stats_reader = ChampPlacementWriter(CHAMPION_PLACEMENTS_FILE_NAME)
     watcher = LolWatcher(read_api_key())
 
     puuid_seed = get_player_puuid(summoner_name_seed, tagline_seed, read_api_key)
     match_ids = get_puuid_matches(region, puuid_seed, watcher, count=num_matches_to_check_per_player)
 
-    i = 1
+    i = 1   # Even though possible not, it's likely the 0th index match is the match you searched by, so start at 1
     player_puuids_checked = {puuid_seed}
     match_ids_to_check = match_ids
     match_ids_checked = set(match_ids_to_check)
@@ -192,7 +192,6 @@ def save_matches_recursive(summoner_name_seed: str, tagline_seed: str, region: s
 
 if __name__ == "__main__":
     # save_recent_matches(config["MY_SUMMONER_NAME"], config["MY_TAGLINE"])
+    # save_matches_recursive(config["MY_SUMMONER_NAME"], config["MY_TAGLINE"])
 
-    save_matches_recursive(config["MY_SUMMONER_NAME"], config["MY_TAGLINE"])
-
-    # get_stats()
+    get_stats()

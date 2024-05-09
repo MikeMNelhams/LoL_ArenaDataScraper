@@ -49,26 +49,29 @@ class PairwiseChampionData:
             return 0.0, 0
         return float(sum(placements) / num_placements), num_placements
 
-    def average_placement_by_teammate(self, champion: Champion):
+    def average_placement_by_teammate(self, champion: Champion) -> pd.DataFrame:
         placements = self.__placements(champion)
         champ_names = self.data.index
         num_champs = self.data.shape[0]
 
         average_placements_list = [0 for _ in range(num_champs)]
+        sample_sizes = [0 for _ in range(num_champs)]
 
         for i in range(num_champs):
             champ_name = champ_names[i]
 
             placement_counts = tuple(placements[f"{champ_name}_{j}"] for j in range(1, self.player_count + 1))
             total_num_placements = sum(placement_counts)
-
+            sample_sizes[i] = total_num_placements
             if total_num_placements == 0:
                 continue
 
             average_placement = sum(placement * j for j, placement in enumerate(placement_counts, 1)) / total_num_placements
             average_placements_list[i] = average_placement
 
-        return pd.DataFrame([average_placements_list], columns=champ_names, index=pd.Index([champion.name]))
+        index_labels = [f"Average placement for \'{champion.name}\'", "Sample size (n)"]
+
+        return pd.DataFrame([average_placements_list, sample_sizes], columns=champ_names, index=pd.Index(index_labels))
 
     def average_pairwise_placement(self, champion1: Champion, champion2: Champion) -> float:
         placements = self.__placement_pairwise(champion1, champion2)
@@ -100,7 +103,7 @@ class PairwiseChampionData:
     def best_teammates_for(self, champion: Champion, max_display_number_of_teammates: int = 10) -> pd.DataFrame:
         average_placements = self.average_placement_by_teammate(champion).copy()
         average_placements[average_placements == 0] = np.nan
-        sorted_placements = average_placements.sort_values(by=champion.name, axis=1, ascending=True)
+        sorted_placements = average_placements.sort_values(by=average_placements.index.tolist(), axis=1, ascending=[True, False])
         sorted_placements.dropna(axis=1, inplace=True)
         return sorted_placements.iloc[:, :max_display_number_of_teammates]
 
