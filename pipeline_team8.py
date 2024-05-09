@@ -192,6 +192,6 @@ def save_matches_recursive(summoner_name_seed: str, tagline_seed: str, region: s
 
 if __name__ == "__main__":
     # save_recent_matches(config["MY_SUMMONER_NAME"], config["MY_TAGLINE"])
-    # save_matches_recursive(config["MY_SUMMONER_NAME"], config["MY_TAGLINE"])
+    save_matches_recursive(config["MY_SUMMONER_NAME"], config["MY_TAGLINE"])
 
-    get_stats()
+    # get_stats()
