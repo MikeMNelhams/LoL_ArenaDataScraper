@@ -17,11 +17,3 @@ def colour_print_string_header(phrase: str) -> str:
 def print_row(number_of_chars: int=50, char: str= '-') -> None:
     print(char * number_of_chars)
     return None
-
-
-def main():
-    print("This is a library file, do not run as main.")
-
-
-if __name__ == "__main__":
-    main()
