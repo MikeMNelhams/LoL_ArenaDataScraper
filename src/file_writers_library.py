@@ -8,6 +8,28 @@ class FileReader(ABC):
     def __init__(self, file_path: str, *args):
         self.file_path = file_path
 
+    @property
+    def exists(self) -> bool:
+        return os.path.isfile(self.file_path)
+
+    @property
+    def is_empty(self) -> bool:
+        return os.stat(self.file_path).st_size == 0
+
+    def touch_with_prompt_warning(self) -> None:
+        user_response = input(f"Are you sure you want to possibly overwrite \'{self.file_path}\' to make an empty file? Y/N?: ")
+        if user_response.lower() == 'n':
+            print(f"Ok. Aborting overwriting file: \'{self.file_path}\'.")
+            return None
+        with open(self.file_path, 'a'):
+            os.utime(self.file_path, None)
+        return None
+
+    def touch_no_prompt(self) -> None:
+        with open(self.file_path, 'a'):
+            os.utime(self.file_path, None)
+        return None
+
     @abstractmethod
     def save(self, data) -> None:
         raise NotImplementedError
@@ -40,7 +62,7 @@ class CSV_FileReader(FileReader):
     def save(self, data: pd.DataFrame) -> None:
         data.to_csv(self.file_path, header=self._headerEnabled)
 
-    def load(self) -> pd.DataFrame:
+    def load(self, index_column=None) -> pd.DataFrame:
         if os.stat(self.file_path).st_size == 0:
             return pd.DataFrame()
-        return pd.read_csv(self.file_path, sep=',')
+        return pd.read_csv(self.file_path, sep=',', index_col=index_column)

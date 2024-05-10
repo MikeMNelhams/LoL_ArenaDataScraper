@@ -22,7 +22,7 @@ def get_player_puuid(game_name: str, tag_line: str, api_key_generator: Callable[
     response = requests.get(request_url)
     data = response.json()
     if "puuid" not in data:
-        raise KeyError("Bad response from server. " + response)
+        raise KeyError("Bad response from server. " + str(response))
     return data["puuid"]
 
 

@@ -29,7 +29,7 @@ class PairwiseChampionData:
 
     def average_placement(self, champion: Champion) -> float:
         placements = self.total_placements(champion)
-        placements = np.array(placements, dtype=np.float)
+        placements = np.array(placements, dtype=np.float32)
         num_placements = np.sum(placements)
         for i in range(1, self.player_count):
             placements[i] *= i + 1
@@ -40,7 +40,7 @@ class PairwiseChampionData:
 
     def __average_placement_with_n(self, champion: Champion) -> (float, int):
         placements = self.total_placements(champion)
-        placements = np.array(placements, dtype=np.float)
+        placements = np.array(placements, dtype=np.float32)
         num_placements = np.sum(placements)
 
         for i in range(1, self.player_count):
