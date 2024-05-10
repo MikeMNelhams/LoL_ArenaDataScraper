@@ -6,4 +6,15 @@ class ChampPlacementWriterTeam4(ChampPlacementWriter):
         return 4
 
     def validate_configuration(self) -> None:
-        pass
+        data = self.load()
+        if data.shape[1] != self.champion_names_with_placements.shape[1] + 1:
+            raise ValueError
+        if data.shape[1] != self.champion_names.shape[1] * 8 + 1:
+            raise ValueError
+        if (data.values < 0).any():
+            raise ValueError("Negative values in array detected")
+        if data.columns.tolist()[1:] != self.champion_names_with_placements.columns.tolist():
+            raise ValueError
+        if data.index.tolist() != self.champion_names.columns.tolist():
+            raise ValueError
+        return None
