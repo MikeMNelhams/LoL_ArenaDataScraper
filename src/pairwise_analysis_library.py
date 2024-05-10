@@ -20,7 +20,7 @@ class PairwiseChampionData:
         return [int(placements[f"{champion1.name}_{i}"]) for i in range(1, self.player_count + 1)]
 
     def total_matches(self) -> int:
-        return self.data.to_numpy().sum() // 8
+        return self.data.to_numpy().sum() // self.player_count
 
     def total_placements(self, champion: Champion) -> np.array:
         placements = self.__placements(champion)
@@ -28,15 +28,8 @@ class PairwiseChampionData:
         return np.array(placement_numbers)
 
     def average_placement(self, champion: Champion) -> float:
-        placements = self.total_placements(champion)
-        placements = np.array(placements, dtype=np.float32)
-        num_placements = np.sum(placements)
-        for i in range(1, self.player_count):
-            placements[i] *= i + 1
-
-        if num_placements == 0:
-            return 0.0
-        return float(sum(placements) / num_placements)
+        average_placement, _ = self.__average_placement_with_n(champion)
+        return average_placement
 
     def __average_placement_with_n(self, champion: Champion) -> (float, int):
         placements = self.total_placements(champion)

@@ -39,6 +39,9 @@ class Match:
         self.scoreboard = scoreboard
         self.game_id = game_id
 
+    def __repr__(self) -> str:
+        return f"Match({self.teams}, {self.scoreboard}, {self.game_id})"
+
     @staticmethod
     def __generate_match_info(teams: list[Team], scoreboard: list, game_id: str) -> dict:
         info_dict = {f"team{i + 1}": team.data for i, team in enumerate(teams)}
