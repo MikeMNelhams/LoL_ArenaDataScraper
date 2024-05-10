@@ -17,8 +17,8 @@ def get_puuid_matches(region, puuid, watcher, start: int=0, count: int=20):
     return matches
 
 
-def get_player_puuid(game_name: str, tag_line: str, api_key_generator: Callable[[], str], region: str = "europe") -> str:
-    request_url = f"https://{region}.api.riotgames.com/riot/account/v1/accounts/by-riot-id/{game_name}/{tag_line}?api_key={api_key_generator()}"
+def get_player_puuid(game_name: str, tag_line: str, api_key: str, region: str = "europe") -> str:
+    request_url = f"https://{region}.api.riotgames.com/riot/account/v1/accounts/by-riot-id/{game_name}/{tag_line}?api_key={api_key}"
     response = requests.get(request_url)
     data = response.json()
     if "puuid" not in data:

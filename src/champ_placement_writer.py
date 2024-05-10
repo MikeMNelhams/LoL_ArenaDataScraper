@@ -6,7 +6,7 @@ import numpy as np
 import pandas as pd
 
 from src.file_writers_library import FileReader, CSV_FileReader
-from src.team8.league_stats_library import Champion, Match
+from src.league_library import Champion, Match
 
 
 class ChampPlacementWriter(FileReader, ABC):

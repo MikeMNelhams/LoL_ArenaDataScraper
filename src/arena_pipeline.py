@@ -5,13 +5,12 @@ import time
 
 from src.print_library import print_row
 
-from src.league_library import Champion
+from src.league_library import Champion, Match
 from src.lol_api_library import get_puuid_matches, get_player_puuid, parse_match_puuids
 from src.champ_placement_writer_factory import champ_placement_writer_factory
 from src.pairwise_analysis_library import PairwiseChampionData
 import src.pairwise_analysis_print_library as papl
 
-from src.team8.league_stats_library import Match
 
 from riotwatcher import LolWatcher, ApiError
 
