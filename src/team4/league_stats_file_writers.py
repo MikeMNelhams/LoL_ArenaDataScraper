@@ -9,7 +9,7 @@ class ChampPlacementWriterTeam4(ChampPlacementWriter):
         data = self.load()
         if data.shape[1] != self.champion_names_with_placements.shape[1] + 1:
             raise ValueError
-        if data.shape[1] != self.champion_names.shape[1] * 8 + 1:
+        if data.shape[1] != self.champion_names.shape[1] * 4 + 1:
             raise ValueError
         if (data.values < 0).any():
             raise ValueError("Negative values in array detected")
