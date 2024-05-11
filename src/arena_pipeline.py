@@ -53,7 +53,7 @@ class ArenaPipeline:
         papl.print_number_of_matches(pairwise_data)
         papl.print_pairwise_stats_best(pairwise_data, display_number)
         champ_input = Champion(input("CHAMP? ").lower().replace(' ', ''))
-        papl.print_champ_stats(champ_input, pairwise_data)
+        papl.print_champ_stats(champ_input, pairwise_data, display_number)
         return None
 
     def save_matches_recent(self, summoner_name: str, player_tagline: str, region: str = "euw1", num_matches: int = 1):

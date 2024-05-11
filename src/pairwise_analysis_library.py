@@ -44,6 +44,7 @@ class PairwiseChampionData:
 
     def average_placement_by_teammate(self, champion: Champion) -> pd.DataFrame:
         placements = self.__placements(champion)
+
         champ_names = self.data.index
         num_champs = self.data.shape[0]
 
@@ -54,13 +55,15 @@ class PairwiseChampionData:
             champ_name = champ_names[i]
 
             placement_counts = tuple(placements[f"{champ_name}_{j}"] for j in range(1, self.player_count + 1))
+
             total_num_placements = sum(placement_counts)
-            sample_sizes[i] = total_num_placements
+
             if total_num_placements == 0:
                 continue
 
             average_placement = sum(placement * j for j, placement in enumerate(placement_counts, 1)) / total_num_placements
             average_placements_list[i] = average_placement
+            sample_sizes[i] = total_num_placements
 
         index_labels = [f"Average placement for \'{champion.name}\'", "Sample size (n)"]
 
@@ -96,8 +99,9 @@ class PairwiseChampionData:
     def best_teammates_for(self, champion: Champion, max_display_number_of_teammates: int = 10) -> pd.DataFrame:
         average_placements = self.average_placement_by_teammate(champion).copy()
         average_placements[average_placements == 0] = np.nan
+        average_placements.dropna(axis=1, inplace=True)
         sorted_placements = average_placements.sort_values(by=average_placements.index.tolist(), axis=1, ascending=[True, False])
-        sorted_placements.dropna(axis=1, inplace=True)
+
         return sorted_placements.iloc[:, :max_display_number_of_teammates]
 
     def best_champs(self, max_display_number_of_teammates: int = 10) -> pd.DataFrame:

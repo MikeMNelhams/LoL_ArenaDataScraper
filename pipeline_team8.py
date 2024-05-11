@@ -13,5 +13,5 @@ if __name__ == "__main__":
     arena_pipeline = ArenaPipeline(NUMBER_OF_TEAMS, CHAMPION_PLACEMENTS_FILE_NAME, RECORDED_GAMES_FILE_NAME)
     arena_pipeline.register_config(config)
     # arena_pipeline.save_matches_recent(config["MY_SUMMONER_NAME"], config["MY_TAGLINE"])
-    arena_pipeline.save_matches_recursive()
-    # arena_pipeline.get_stats(DISPLAY_NUMBER)
+    # arena_pipeline.save_matches_recursive()
+    arena_pipeline.get_stats(DISPLAY_NUMBER)

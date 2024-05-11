@@ -33,9 +33,9 @@ def print_champ_placement_stats(champ_input: Champion, pairwise_data: PairwiseCh
     return None
 
 
-def print_champ_average_pairwise_best(champ_input: Champion, pairwise_data: PairwiseChampionData) -> None:
+def print_champ_average_pairwise_best(champ_input: Champion, pairwise_data: PairwiseChampionData, display_number: int=10) -> None:
     print(colour_print_string_header(f"Best average placements by champ for \'{champ_input}\'"))
-    print(pairwise_data.best_teammates_for(champ_input).to_string())
+    print(pairwise_data.best_teammates_for(champ_input, display_number).to_string())
     print_row()
     return None
 
@@ -46,10 +46,10 @@ def print_champ_average_pairwise_all(champ_input: Champion, pairwise_data: Pairw
     return None
 
 
-def print_champ_stats(champ_input: Champion, pairwise_data: PairwiseChampionData) -> None:
+def print_champ_stats(champ_input: Champion, pairwise_data: PairwiseChampionData, display_number: int = 10) -> None:
     print_champ_placement_stats(champ_input, pairwise_data)
     print_champ_average_pairwise_all(champ_input, pairwise_data)
-    print_champ_average_pairwise_best(champ_input, pairwise_data)
+    print_champ_average_pairwise_best(champ_input, pairwise_data, display_number)
     return None
 
 
