@@ -166,3 +166,5 @@ cython_debug/
 
 # Local IDE/venv settings
 .idea/*
+
+*.png
