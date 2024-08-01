@@ -1,5 +1,3 @@
-# The website allows all public requests for scraping the champion icons.
-
 import requests
 from requests import Response
 import shutil
@@ -64,6 +62,7 @@ def download_all(queue: Queue, save_dir_path: str, thread_local: local, thread_c
 
 
 def main():
+    # The website allows all public requests for scraping the champion icons.
     icon_root_url = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-icons/"
     champion_details_root_url = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champions/"
     save_dir_path = "champion_icons"

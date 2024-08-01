@@ -142,7 +142,7 @@ class PairwiseChampionData:
         top_champions = pd.DataFrame([average_placements, sample_sizes],
                                      columns=pairwise_champion_names,
                                      index=index_labels)
-        sorted_champions = top_champions.loc[:, (top_champions != 0).any(axis=0)]
+        sorted_champions = top_champions.loc[:, (top_champions != 0).any(axis=0)]  # noqa
         sorted_champions = sorted_champions.sort_values(by=index_labels,
                                                         axis=1,
                                                         ascending=[True, False])

@@ -14,6 +14,9 @@ import src.pairwise_analysis_print_library as papl
 
 from riotwatcher import LolWatcher, ApiError
 
+import matplotlib.pyplot as plt
+from matplotlib.offsetbox import OffsetImage, AnnotationBbox
+
 
 class UnregisteredConfigurationError(Exception):
     def __init__(self, pipeline: ArenaPipeline):
@@ -137,5 +140,43 @@ class ArenaPipeline:
                 self.champion_stats_reader.save(match)
                 recorded_games.add(current_match_id)
                 i += 1
+
+        return None
+
+    def plot_winrate_graph(self, display_number: int, champion_icons_dir_path: str) -> None:
+        pd_data = self.champion_stats_reader.load()
+        pairwise_data = PairwiseChampionData(pd_data, player_count=self.number_of_teams)
+
+        best_champs = pairwise_data.best_champs(display_number)
+        ranks = best_champs.iloc[0].tolist()
+        sample_sizes = best_champs.iloc[1].tolist()
+        champion_names = best_champs.columns.tolist()
+        number_of_samples = pairwise_data.total_matches()
+
+        fig, ax = plt.subplots()
+
+        champion_names_labels = [f"{str(round(sample_size, 0))[:-2]} - {champion_name}" + " " * 8
+                                 for sample_size, champion_name in zip(sample_sizes, champion_names)]
+        ax.scatter(champion_names_labels, ranks, marker='x')
+        fig.suptitle(f"Best champion average placements (Sample size: {number_of_samples})")
+        ax.set_ylabel("Average placement")
+        ax.tick_params(axis='x', rotation=90)
+        y_offset, _ = ax.get_ylim()
+
+        for i, champion_name in enumerate(champion_names):
+            icon = plt.imread(f"{champion_icons_dir_path}/{champion_name}.png")
+            icon_box = OffsetImage(icon, zoom=.2)
+            icon_box.image.axes = ax
+            position = [i, y_offset]
+            ab = AnnotationBbox(icon_box,
+                                position,
+                                frameon=False,
+                                box_alignment=(0.5, 1.2)
+                                )
+            ax.add_artist(ab)
+
+        ax.set_xlabel("Champion (Sample sizes below)")
+        fig.tight_layout()
+        plt.show()
 
         return None
