@@ -5,8 +5,8 @@ from src.arena_pipeline import ArenaPipeline
 config = dotenv_values(".env")
 DISPLAY_NUMBER = 30
 NUMBER_OF_TEAMS = 8
-CHAMPION_PLACEMENTS_FILE_PATH = "champion_placements_team8.csv"
-RECORDED_GAMES_FILE_PATH = "recorded_games_team8.csv"
+CHAMPION_PLACEMENTS_FILE_PATH = f"champion_placements_team{NUMBER_OF_TEAMS}.csv"
+RECORDED_GAMES_FILE_PATH = f"recorded_games_team{NUMBER_OF_TEAMS}.csv"
 CHAMPION_ICONS_DIR_PATH = "src/champion_icons"
 
 

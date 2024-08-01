@@ -158,7 +158,7 @@ class ArenaPipeline:
         champion_names_labels = [f"{str(round(sample_size, 0))[:-2]} - {champion_name}" + " " * 8
                                  for sample_size, champion_name in zip(sample_sizes, champion_names)]
         ax.scatter(champion_names_labels, ranks, marker='x')
-        fig.suptitle(f"Best champion average placements (Sample size: {number_of_samples})")
+        fig.suptitle(f"Best champions for {self.number_of_teams}-team Arena (Sample size: {number_of_samples})")
         ax.set_ylabel("Average placement")
         ax.tick_params(axis='x', rotation=90)
         y_offset, _ = ax.get_ylim()
@@ -177,6 +177,7 @@ class ArenaPipeline:
 
         ax.set_xlabel("Champion (Sample sizes below)")
         fig.tight_layout()
+        fig.set_size_inches(11.5, 5.5)
+        fig.savefig(f"{display_number} best champions in arena{self.number_of_teams}.png")
         plt.show()
-
         return None
