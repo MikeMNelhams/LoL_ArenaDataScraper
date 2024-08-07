@@ -6,7 +6,7 @@ from queue import Queue
 from contextlib import ExitStack
 
 
-class GroupURLs:
+class ChampionDataURLs:
     def __init__(self, icon_url: str, champion_details_url: str):
         self.icon_url = icon_url
         self.champion_details_url = champion_details_url
@@ -72,7 +72,7 @@ def main():
     queue = Queue()
 
     for i in range(max_champ_id):
-        urls = GroupURLs(f"{icon_root_url}/{i}.png", f"{champion_details_root_url}/{i}.json")
+        urls = ChampionDataURLs(f"{icon_root_url}/{i}.png", f"{champion_details_root_url}/{i}.json")
         queue.put(urls)
 
     thread_local = local()

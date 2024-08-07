@@ -5,6 +5,7 @@ from riotwatcher import ApiError
 
 
 def get_puuid_matches(region, puuid, watcher, start: int=0, count: int=20):
+    # 1 request.
     matches = []
     try:
         matches = watcher.match.matchlist_by_puuid(region, puuid, start=start, count=count)
