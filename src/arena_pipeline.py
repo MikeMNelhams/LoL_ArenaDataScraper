@@ -156,12 +156,14 @@ class ArenaPipeline:
         best_champion_names = [name for i, name in enumerate(champion_names) if i in best_column_indices]
 
         x = np.column_stack(tuple(columns[i] for i in range(len(columns)) if i in best_column_indices))
-        x = np.array([row for i, row in enumerate(x) if i in best_column_indices])
+        x = np.triu([row for i, row in enumerate(x) if i in best_column_indices])
 
-        ax = seaborn.heatmap(x, linewidths=0.5, xticklabels=best_champion_names, yticklabels=best_champion_names, annot=True, cmap="crest_r")
+        x_masked = np.logical_not(np.bool8(x))
+
+        ax = seaborn.heatmap(x, mask=x_masked, linewidths=0.5, xticklabels=best_champion_names, yticklabels=best_champion_names, annot=True, cmap="crest")
         ax.set_ylabel("Champion 1")
         ax.set_xlabel("Champion 2")
-        ax.set_title("Best champion pairwise average winrates")
+        ax.set_title("Best champion pairwise average winrates matrix")
         plt.show()
 
 

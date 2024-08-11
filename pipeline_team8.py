@@ -15,5 +15,5 @@ if __name__ == "__main__":
     arena_pipeline.register_config(config)
     # arena_pipeline.save_matches_recent(config["MY_SUMMONER_NAME"], config["MY_TAGLINE"])
     # arena_pipeline.save_matches_recursive(target_number_of_matches=10_000)
-    # arena_pipeline.plot_champion_confusion_matrix(20, CHAMPION_ICONS_DIR_PATH)
-    arena_pipeline.plot_winrate_graph(30, CHAMPION_ICONS_DIR_PATH)
+    arena_pipeline.plot_champion_confusion_matrix(20, CHAMPION_ICONS_DIR_PATH)
+    # arena_pipeline.plot_winrate_graph(30, CHAMPION_ICONS_DIR_PATH)
