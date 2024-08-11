@@ -4,7 +4,7 @@ from src.print_library import colour_print_string_header, print_row
 
 
 def print_number_of_matches(pairwise_data: PairwiseChampionData) -> None:
-    print(f"Total number of matches recorded: {pairwise_data.total_matches()}")
+    print(f"Total number of matches recorded: {pairwise_data.total_samples()}")
     print_row()
     return None
 

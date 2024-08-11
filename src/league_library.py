@@ -64,12 +64,14 @@ class Match:
             champions[player["playerSubteamId"] - 1].append(Champion(player["championName"]))
             scoreboard[player["playerSubteamId"] * 2 - 2] = player["placement"]
             scoreboard[player["playerSubteamId"] * 2 - 1] = player["placement"]
+
         try:
             teams = tuple(Team(champions[i][0], champions[i][1]) for i in range(number_of_teams))
         except IndexError as e:
             print(e)
             print(champions)
             print(number_of_teams)
+            print(game_data)
             raise e
         game_id = game_data["metadata"]["matchId"]
 

@@ -57,7 +57,7 @@ class ArenaPipeline:
 
     def get_stats(self, display_number: int) -> None:
         pd_data = self.champion_stats_reader.load()
-        pairwise_data = PairwiseChampionData(pd_data, player_count=self.number_of_teams)
+        pairwise_data = PairwiseChampionData(pd_data, team_count=self.number_of_teams)
         papl.print_number_of_matches(pairwise_data)
         papl.print_pairwise_stats_best(pairwise_data, display_number)
         champ_input = Champion(input("CHAMP? ").lower().replace(' ', ''))
@@ -99,13 +99,13 @@ class ArenaPipeline:
 
     def plot_winrate_graph(self, display_number: int, champion_icons_dir_path: str) -> None:
         pd_data = self.champion_stats_reader.load()
-        pairwise_data = PairwiseChampionData(pd_data, player_count=self.number_of_teams)
+        pairwise_data = PairwiseChampionData(pd_data, team_count=self.number_of_teams)
 
         best_champs = pairwise_data.best_champs(display_number)
         ranks = best_champs.iloc[0].tolist()
         sample_sizes = best_champs.iloc[1].tolist()
         champion_names = best_champs.columns.tolist()
-        number_of_samples = pairwise_data.total_matches()
+        number_of_samples = pairwise_data.total_samples()
 
         fig, ax = plt.subplots()
 
@@ -138,30 +138,31 @@ class ArenaPipeline:
 
     def plot_champion_confusion_matrix(self, display_number: int, champion_icons_dir_path: str) -> None:
         pd_data = self.champion_stats_reader.load()
-        pairwise_data = PairwiseChampionData(pd_data, player_count=self.number_of_teams)
+        pairwise_data = PairwiseChampionData(pd_data, team_count=self.number_of_teams)
         pairwise_data.data.drop(columns=["champion_names"], inplace=True)
+        print(f"Number of samples: {pairwise_data.total_samples()}")
 
         number_of_champs = pairwise_data.data.shape[0]
         # This should be a weighted sum AVERAGE (arithmetic mean)
         weights = np.array(list(range(1, 9)))
         columns = tuple(np.dot(pairwise_data.data.iloc[:, i * self.number_of_teams: (i + 1) * self.number_of_teams].to_numpy(), weights) / np.maximum(np.sum(pairwise_data.data.iloc[:, i * self.number_of_teams: (i + 1) * self.number_of_teams].to_numpy(), axis=1), 1) for i in range(number_of_champs))
 
-        sorted_placements = tuple(sorted(((np.mean(x), i) for i, x in enumerate(columns))))
+        champion_names_all = self.champion_stats_reader.champion_names.columns
+        sorted_placements = tuple(sorted(((np.mean(x), i, champion_names_all[i]) for i, x in enumerate(columns))))
+        print(sorted_placements)
+        best_column_indices = {sorted_placements[i][1] for i in range(display_number) if sorted_placements[i][1] != 0}
 
-        best_column_indices = {sorted_placements[i][1] for i in range(display_number)}
-        champion_names = self.champion_stats_reader.champion_names.columns.tolist()
+        champion_names = champion_names_all.tolist()
         best_champion_names = [name for i, name in enumerate(champion_names) if i in best_column_indices]
 
         x = np.column_stack(tuple(columns[i] for i in range(len(columns)) if i in best_column_indices))
         x = np.array([row for i, row in enumerate(x) if i in best_column_indices])
 
-        ax = seaborn.heatmap(x, linewidths=0.5, xticklabels=best_champion_names, yticklabels=best_champion_names, annot=True)
+        ax = seaborn.heatmap(x, linewidths=0.5, xticklabels=best_champion_names, yticklabels=best_champion_names, annot=True, cmap="crest_r")
         ax.set_ylabel("Champion 1")
         ax.set_xlabel("Champion 2")
         ax.set_title("Best champion pairwise average winrates")
         plt.show()
-
-        raise NotImplementedError
 
 
 class MatchDataScraper:
@@ -195,9 +196,12 @@ class MatchDataScraper:
         self.player_ids_to_check_for_matches.add(puuid_seed)
         rate_limit_delay = 1 / 3
 
-        i = 1
-        while i < target_number_of_matches:
+        i = 0
+        max_iterations = 100_000
+        c = 0
+        while i < target_number_of_matches or c >= max_iterations:
             while self.match_ids_to_save:
+                c += 1
                 # Randomised to prevent recency bias
                 match_id = self.match_ids_to_save.pop()
 
@@ -215,7 +219,7 @@ class MatchDataScraper:
                     print(f"Match: {match} already saved")
                     continue
 
-                print(f"Saving match #{i}: \'{match}\'")
+                print(f"Saving match #{i}: \'{match}\'. Number of matches recorded: {len(self.match_ids_saved) + 1}")
                 print_row()
                 self.champion_stats_reader.save(match)
                 self.match_ids_saved.add(match_id)
@@ -223,6 +227,7 @@ class MatchDataScraper:
                 i += 1
 
             while not self.match_ids_to_save and (self.player_ids_to_check_for_matches or self.match_ids_to_check_for_players):
+                c += 1
                 if self.player_ids_to_check_for_matches:
                     player_id = self.player_ids_to_check_for_matches.pop()
                     if player_id in self.player_ids_checked_for_matches:
