@@ -136,6 +136,34 @@ class ArenaPipeline:
         plt.show()
         return None
 
+    def plot_pairwise_winrate_graph(self, display_number: int, champion_icons_dir_path: str) -> None:
+        pd_data = self.champion_stats_reader.load()
+        pairwise_data = PairwiseChampionData(pd_data, team_count=self.number_of_teams)
+
+        best_pairs = pairwise_data.best_pairs(display_number)
+        print(best_pairs)
+        ranks = best_pairs.iloc[0].tolist()
+        sample_sizes = best_pairs.iloc[1].tolist()
+        champion_names = best_pairs.columns.tolist()
+        number_of_samples = pairwise_data.total_samples()
+
+        fig, ax = plt.subplots()
+
+        champion_names_labels = [f"{str(round(sample_size, 0))[:-2]} - {champion_name}" + " " * 8
+                                 for sample_size, champion_name in zip(sample_sizes, champion_names)]
+        ax.scatter(champion_names_labels, ranks, marker='x')
+        fig.suptitle(f"Best pairs for {self.number_of_teams}-team Arena (Sample size: {number_of_samples})")
+        ax.set_ylabel("Average placement")
+        ax.tick_params(axis='x', rotation=90)
+        y_offset, _ = ax.get_ylim()
+
+        ax.set_xlabel("Champion pairs (Sample sizes below)")
+        fig.tight_layout()
+        fig.set_size_inches(11.5, 5.5)
+        fig.savefig(f"{display_number} best champions in arena{self.number_of_teams}.png")
+        plt.show()
+        return None
+
     def plot_champion_confusion_matrix(self, display_number: int, champion_icons_dir_path: str) -> None:
         pd_data = self.champion_stats_reader.load()
         pairwise_data = PairwiseChampionData(pd_data, team_count=self.number_of_teams)
