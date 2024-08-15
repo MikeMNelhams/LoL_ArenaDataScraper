@@ -275,8 +275,6 @@ class MatchDataScraper:
                     match_id = self.match_ids_to_check_for_players.pop()
                     if match_id in self.match_ids_checked_for_players:
                         continue
-                    if match_id in self.match_ids_invalid_type:
-                        continue
 
                     print(f"Checking for new players in match with id: {match_id}")
                     if match_id not in self.matches:
@@ -315,9 +313,8 @@ class MatchDataScraper:
         if match_detail is None:
             return False
 
-        if self.__is_valid_match_detail(match_detail):
-            self.matches[match_id] = match_detail
-        else:
+        self.matches[match_id] = match_detail
+        if not self.__is_valid_match_detail(match_detail):
             self.match_ids_invalid_type.add(match_id)
 
         return True
